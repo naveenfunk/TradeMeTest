@@ -1,3 +1,9 @@
 <resources>
     <string name="discover_title">Discover</string>
+    <string name="discover_browse_title">Browse</string>
+    <string name="discover_cart_content_description">Cart</string>
+    <string name="discover_search_content_description">Search</string>
+    <string name="discover_cart_clicked">Cart clicked</string>
+    <string name="discover_search_clicked">Search clicked</string>
+    <string name="discover_placeholder_body">Discover items will appear here</string>
 </resources>

@@ -18,11 +18,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import dagger.hilt.android.AndroidEntryPoint
 import nz.co.trademetest.core.theme.TradeMeTestTheme
 import nz.co.trademetest.feature.discover.DiscoverScreen
 import nz.co.trademetest.feature.profile.ProfileScreen
 import nz.co.trademetest.feature.watchlist.WatchlistScreen
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
