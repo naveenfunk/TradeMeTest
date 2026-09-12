@@ -6,10 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -56,6 +60,14 @@ fun TradeMeTestApp(
         } == true
     } ?: DiscoverHome
 
+    val tabItemColors = NavigationSuiteDefaults.itemColors(
+        navigationBarItemColors = NavigationBarItemDefaults.colors(
+            selectedIconColor = MaterialTheme.colorScheme.primary,
+            selectedTextColor = MaterialTheme.colorScheme.primary,
+            indicatorColor = Color.Transparent,
+        ),
+    )
+
     NavigationSuiteScaffold(
         navigationSuiteItems = {
             for (destination in TOP_LEVEL_ROUTES) {
@@ -68,6 +80,7 @@ fun TradeMeTestApp(
                     },
                     label = { Text(stringResource(destination.labelRes)) },
                     selected = destination == currentTopLevelRoute,
+                    colors = tabItemColors,
                     onClick = {
                         if (destination == currentTopLevelRoute) {
                             // Re-tapping the active tab clears its inner stack back to the tab's home screen.

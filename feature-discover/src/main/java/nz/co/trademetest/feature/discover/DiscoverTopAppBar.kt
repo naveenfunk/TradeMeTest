@@ -30,14 +30,14 @@ internal fun DiscoverTopAppBar(
                 Icon(
                     painter = painterResource(R.drawable.discover_ic_search),
                     contentDescription = stringResource(R.string.discover_search_content_description),
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
             IconButton(onClick = onCartClick) {
                 Icon(
                     painter = painterResource(R.drawable.discover_ic_cart),
                     contentDescription = stringResource(R.string.discover_cart_content_description),
-                    tint = MaterialTheme.colorScheme.onSurface,
+                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
         },
