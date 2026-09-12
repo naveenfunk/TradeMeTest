@@ -16,7 +16,6 @@ import kotlinx.coroutines.test.setMain
 import nz.co.trademetest.feature.discover.domain.DiscoverItem
 import nz.co.trademetest.feature.discover.domain.DiscoverRepository
 import nz.co.trademetest.feature.discover.domain.GetDiscoverItemsUseCase
-import nz.co.trademetest.feature.discover.domain.PriceFormatter
 import nz.co.trademetest.feature.discover.ui.home.DiscoverEffect
 import nz.co.trademetest.feature.discover.ui.home.DiscoverIntent
 import nz.co.trademetest.feature.discover.ui.home.DiscoverItemUiMapper
@@ -33,7 +32,6 @@ import org.junit.Test
 class DiscoverViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
-    private val stubFormatter = PriceFormatter { cents -> "<$cents>" }
 
     @Before
     fun setUp() {
@@ -48,7 +46,7 @@ class DiscoverViewModelTest {
     private fun createViewModel(repository: DiscoverRepository): DiscoverViewModel =
         DiscoverViewModel(
             getDiscoverItems = GetDiscoverItemsUseCase(repository),
-            mapper = DiscoverItemUiMapper(stubFormatter),
+            mapper = DiscoverItemUiMapper(),
         )
 
     private fun createViewModel(items: List<DiscoverItem> = emptyList()): DiscoverViewModel {
@@ -110,8 +108,8 @@ class DiscoverViewModelTest {
             imageUrl = "https://example.com/image.jpg",
             location = "Auckland City",
             title = "Vintage leather armchair",
-            priceDisplayCents = 15000,
-            buyNowPriceCents = null,
+            priceDisplay = "$150",
+            buyNowPrice = null,
             isClassified = false,
         )
         val viewModel = createViewModel(items = listOf(domainItem))
@@ -125,7 +123,7 @@ class DiscoverViewModelTest {
 
             assertEquals(
                 DiscoverUiState(
-                    items = DiscoverItemUiMapper(stubFormatter).map(listOf(domainItem)),
+                    items = DiscoverItemUiMapper().map(listOf(domainItem)),
                     isLoading = false,
                 ),
                 awaitItem(),
@@ -162,8 +160,8 @@ class DiscoverViewModelTest {
             imageUrl = "https://example.com/image.jpg",
             location = "Auckland City",
             title = "Vintage leather armchair",
-            priceDisplayCents = 15000,
-            buyNowPriceCents = null,
+            priceDisplay = "$150",
+            buyNowPrice = null,
             isClassified = false,
         )
         // An async repository so a restarted upstream would produce a real gap,

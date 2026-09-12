@@ -2,10 +2,6 @@ package nz.co.trademetest.feature.discover.ui.home
 
 import androidx.compose.runtime.Immutable
 
-/**
- * Render-ready Discover row. All formatting is precomputed by
- * [DiscoverItemUiMapper] so the composable performs no business logic.
- */
 @Immutable
 internal data class DiscoverItemUi(
     val id: String,

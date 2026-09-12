@@ -1,7 +1,6 @@
 package nz.co.trademetest.feature.discover
 
 import nz.co.trademetest.feature.discover.domain.DiscoverItem
-import nz.co.trademetest.feature.discover.domain.PriceFormatter
 import nz.co.trademetest.feature.discover.ui.home.DiscoverItemUiMapper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -9,13 +8,11 @@ import org.junit.Test
 
 class DiscoverItemUiMapperTest {
 
-    /** Wraps cents in angle brackets so assertions verify *which* value was formatted, not currency spelling. */
-    private val stubFormatter = PriceFormatter { cents -> "<$cents>" }
-    private val mapper = DiscoverItemUiMapper(stubFormatter)
+    private val mapper = DiscoverItemUiMapper()
 
     @Test
-    fun `classified item never shows Buy Now even when buyNowPriceCents is present`() {
-        val item = baseItem.copy(isClassified = true, buyNowPriceCents = 25000)
+    fun `classified item never shows Buy Now even when buyNowPrice is present`() {
+        val item = baseItem.copy(isClassified = true, buyNowPrice = "$250")
 
         val result = mapper.map(item)
 
@@ -24,7 +21,7 @@ class DiscoverItemUiMapperTest {
 
     @Test
     fun `classified item without a buy now price also has no Buy Now`() {
-        val item = baseItem.copy(isClassified = true, buyNowPriceCents = null)
+        val item = baseItem.copy(isClassified = true, buyNowPrice = null)
 
         val result = mapper.map(item)
 
@@ -33,17 +30,17 @@ class DiscoverItemUiMapperTest {
 
     @Test
     fun `auction item with a buy now price shows both prices`() {
-        val item = baseItem.copy(isClassified = false, priceDisplayCents = 45000, buyNowPriceCents = 89900)
+        val item = baseItem.copy(isClassified = false, priceDisplay = "$450", buyNowPrice = "$899")
 
         val result = mapper.map(item)
 
-        assertEquals("<45000>", result.priceDisplay)
-        assertEquals("<89900>", result.buyNowPrice)
+        assertEquals("$450", result.priceDisplay)
+        assertEquals("$899", result.buyNowPrice)
     }
 
     @Test
     fun `auction item without a buy now price shows null`() {
-        val item = baseItem.copy(isClassified = false, buyNowPriceCents = null)
+        val item = baseItem.copy(isClassified = false, buyNowPrice = null)
 
         val result = mapper.map(item)
 
@@ -51,12 +48,12 @@ class DiscoverItemUiMapperTest {
     }
 
     @Test
-    fun `price display always delegates to the injected formatter`() {
-        val item = baseItem.copy(priceDisplayCents = 15000)
+    fun `price display is copied verbatim`() {
+        val item = baseItem.copy(priceDisplay = "$150")
 
         val result = mapper.map(item)
 
-        assertEquals("<15000>", result.priceDisplay)
+        assertEquals("$150", result.priceDisplay)
     }
 
     @Test
@@ -94,8 +91,8 @@ class DiscoverItemUiMapperTest {
             imageUrl = "https://example.com/image.jpg",
             location = "Auckland City",
             title = "Vintage leather armchair",
-            priceDisplayCents = 15000,
-            buyNowPriceCents = null,
+            priceDisplay = "$150",
+            buyNowPrice = null,
             isClassified = false,
         )
     }
