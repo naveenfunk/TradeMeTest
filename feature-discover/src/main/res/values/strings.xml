@@ -6,5 +6,10 @@
     <string name="discover_search_clicked">Search clicked</string>
     <string name="discover_buy_now_label">Buy Now</string>
     <string name="discover_load_error">Couldn\'t load items. Please try again.</string>
+    <string name="discover_error_offline">No internet connection. Check your connection and try again.</string>
+    <string name="discover_error_server">Something went wrong. Please try again.</string>
+    <string name="discover_error_credentials">Missing Trade Me API credentials. Add them to secrets.properties.</string>
+    <string name="discover_empty">No listings found.</string>
+    <string name="discover_retry">Retry</string>
     <string name="discover_detail_placeholder">Item %1$s</string>
 </resources>

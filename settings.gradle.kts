@@ -26,6 +26,7 @@ rootProject.name = "Trade Me Test"
 include(":app")
 include(":core-theme")
 include(":core-navigation")
+include(":core-network")
 include(":feature-discover")
 include(":feature-watchlist")
 include(":feature-profile")

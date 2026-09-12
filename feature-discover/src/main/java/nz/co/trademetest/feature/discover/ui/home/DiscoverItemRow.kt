@@ -65,7 +65,7 @@ internal fun DiscoverItemRow(
                 overflow = TextOverflow.Ellipsis,
             )
             Row(
-                modifier = modifier.padding(top = 12.dp),
+                modifier = Modifier.padding(top = 12.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
                 Text(
@@ -73,13 +73,13 @@ internal fun DiscoverItemRow(
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyLarge,
                 )
-                Spacer(modifier = modifier.weight(1f))
+                Spacer(modifier = Modifier.weight(1f))
                 if (item.buyNowPrice != null) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = " ${item.buyNowPrice}",
+                            text = item.buyNowPrice,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.bodyLarge,

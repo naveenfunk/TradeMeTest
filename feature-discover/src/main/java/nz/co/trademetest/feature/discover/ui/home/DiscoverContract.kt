@@ -7,6 +7,7 @@ import androidx.compose.runtime.Immutable
 internal data class DiscoverUiState(
     val items: List<DiscoverItemUi> = emptyList(),
     val isLoading: Boolean = false,
+    val isEmpty: Boolean = false,
     @StringRes val errorMessage: Int? = null,
 ) {
     companion object {
@@ -18,6 +19,7 @@ internal data class DiscoverUiState(
 internal sealed interface DiscoverIntent {
     data object CartClicked : DiscoverIntent
     data object SearchClicked : DiscoverIntent
+    data object RetryClicked : DiscoverIntent
     data class ItemClicked(val id: String) : DiscoverIntent
 }
 

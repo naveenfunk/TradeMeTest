@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import nz.co.trademetest.core.theme.TradeMeTestTheme
 import nz.co.trademetest.feature.discover.DiscoverTopAppBar
+import nz.co.trademetest.feature.discover.R
 
 @Composable
 internal fun DiscoverScreen(
@@ -93,18 +95,17 @@ internal fun DiscoverScreen(
                 CircularProgressIndicator()
             }
 
-            state.errorMessage != null -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(contentPadding),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = stringResource(state.errorMessage),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 32.dp),
-                )
-            }
+            state.errorMessage != null -> DiscoverMessage(
+                message = stringResource(state.errorMessage),
+                contentPadding = contentPadding,
+                actionLabel = stringResource(R.string.discover_retry),
+                onAction = { onIntent(DiscoverIntent.RetryClicked) },
+            )
+
+            state.isEmpty -> DiscoverMessage(
+                message = stringResource(R.string.discover_empty),
+                contentPadding = contentPadding,
+            )
 
             else -> LazyColumn(
                 state = listState,
@@ -127,6 +128,39 @@ internal fun DiscoverScreen(
                         },
                     )
                     HorizontalDivider()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Centered message shown in place of the item list -- used for both the empty and
+ * error states.
+ */
+@Composable
+private fun DiscoverMessage(
+    message: String,
+    contentPadding: PaddingValues,
+    modifier: Modifier = Modifier,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(contentPadding),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = message,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 32.dp),
+            )
+            if (actionLabel != null && onAction != null) {
+                Button(onClick = onAction, modifier = Modifier.padding(top = 16.dp)) {
+                    Text(actionLabel)
                 }
             }
         }
@@ -171,6 +205,39 @@ private fun DiscoverScreenPreviewDark() {
     TradeMeTestTheme(darkTheme = true) {
         DiscoverScreen(
             state = DiscoverUiState(items = PreviewItems, isLoading = false),
+            onIntent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DiscoverScreenPreviewLoading() {
+    TradeMeTestTheme {
+        DiscoverScreen(
+            state = DiscoverUiState.Loading,
+            onIntent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DiscoverScreenPreviewEmpty() {
+    TradeMeTestTheme {
+        DiscoverScreen(
+            state = DiscoverUiState(isEmpty = true),
+            onIntent = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DiscoverScreenPreviewError() {
+    TradeMeTestTheme {
+        DiscoverScreen(
+            state = DiscoverUiState(errorMessage = R.string.discover_error_offline),
             onIntent = {},
         )
     }

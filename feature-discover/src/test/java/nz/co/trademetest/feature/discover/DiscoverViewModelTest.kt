@@ -132,7 +132,7 @@ class DiscoverViewModelTest {
     }
 
     @Test
-    fun `uiState surfaces an error message when the repository flow fails`() = runTest {
+    fun `uiState surfaces a server error message for an unrecognised failure`() = runTest {
         val failingRepository = object : DiscoverRepository {
             override fun getDiscoverItems(): Flow<List<DiscoverItem>> = flow {
                 throw IllegalStateException("boom")
@@ -149,8 +149,95 @@ class DiscoverViewModelTest {
             assertTrue(state.items.isEmpty())
             assertEquals(false, state.isLoading)
             assertNotNull(state.errorMessage)
-            assertEquals(R.string.discover_load_error, state.errorMessage)
+            assertEquals(R.string.discover_error_server, state.errorMessage)
         }
+    }
+
+    @Test
+    fun `uiState surfaces an offline error message for connectivity failures`() = runTest {
+        val failingRepository = object : DiscoverRepository {
+            override fun getDiscoverItems(): Flow<List<DiscoverItem>> = flow {
+                throw java.net.UnknownHostException("api.trademe.co.nz")
+            }
+        }
+        val viewModel = createViewModel(failingRepository)
+
+        viewModel.uiState.test {
+            assertEquals(DiscoverUiState.Loading, awaitItem())
+            advanceUntilIdle()
+            assertEquals(R.string.discover_error_offline, awaitItem().errorMessage)
+        }
+    }
+
+    @Test
+    fun `uiState surfaces a credentials error message when credentials are missing`() = runTest {
+        val failingRepository = object : DiscoverRepository {
+            override fun getDiscoverItems(): Flow<List<DiscoverItem>> = flow {
+                throw nz.co.trademetest.core.network.auth.MissingCredentialsException()
+            }
+        }
+        val viewModel = createViewModel(failingRepository)
+
+        viewModel.uiState.test {
+            assertEquals(DiscoverUiState.Loading, awaitItem())
+            advanceUntilIdle()
+            assertEquals(R.string.discover_error_credentials, awaitItem().errorMessage)
+        }
+    }
+
+    @Test
+    fun `uiState marks an empty result as isEmpty rather than an error`() = runTest {
+        val viewModel = createViewModel(items = emptyList())
+
+        viewModel.uiState.test {
+            assertEquals(DiscoverUiState.Loading, awaitItem())
+            advanceUntilIdle()
+
+            val state = awaitItem()
+            assertTrue(state.isEmpty)
+            assertTrue(state.items.isEmpty())
+            assertEquals(null, state.errorMessage)
+        }
+    }
+
+    @Test
+    fun `RetryClicked after a failure re-fetches and reaches content`() = runTest {
+        var callCount = 0
+        val domainItem = DiscoverItem(
+            id = "1",
+            imageUrl = "https://example.com/image.jpg",
+            location = "Auckland City",
+            title = "Vintage leather armchair",
+            priceDisplay = "$150",
+            buyNowPrice = null,
+            isClassified = false,
+        )
+        val repository = object : DiscoverRepository {
+            override fun getDiscoverItems(): Flow<List<DiscoverItem>> = flow {
+                callCount++
+                if (callCount == 1) {
+                    throw IllegalStateException("boom")
+                }
+                emit(listOf(domainItem))
+            }
+        }
+        val viewModel = createViewModel(repository)
+
+        viewModel.uiState.test {
+            assertEquals(DiscoverUiState.Loading, awaitItem())
+            advanceUntilIdle()
+            assertEquals(R.string.discover_error_server, awaitItem().errorMessage)
+
+            viewModel.onIntent(DiscoverIntent.RetryClicked)
+
+            assertEquals(DiscoverUiState.Loading, awaitItem())
+            advanceUntilIdle()
+
+            val state = awaitItem()
+            assertEquals(null, state.errorMessage)
+            assertEquals(1, state.items.size)
+        }
+        assertEquals(2, callCount)
     }
 
     @Test
