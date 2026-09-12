@@ -1,0 +1,78 @@
+package nz.co.trademetest.feature.discover.data
+
+import nz.co.trademetest.feature.discover.domain.DiscoverItem
+
+internal val MockDiscoverItems = listOf(
+    DiscoverItem(
+        id = "1",
+        imageUrl = "https://images.unsplash.com/photo-1602080858428-57174f9431cf",
+        location = "Auckland City",
+        title = "Vintage leather armchair, great condition",
+        priceDisplayCents = 15000,
+        buyNowPriceCents = null,
+        isClassified = false,
+    ),
+    DiscoverItem(
+        id = "2",
+        imageUrl = "https://images.unsplash.com/photo-1505740420928-5e560c06d30e",
+        location = "Wellington Central",
+        title = "Mountain bike, 29er, hydraulic brakes",
+        priceDisplayCents = 45000,
+        buyNowPriceCents = 89900,
+        isClassified = false,
+    ),
+    DiscoverItem(
+        id = "3",
+        imageUrl = "https://images.unsplash.com/photo-1518444065439-e933c06ce9cd",
+        location = "Christchurch",
+        title = "Espresso machine, barely used",
+        priceDisplayCents = 25000,
+        buyNowPriceCents = 25000,
+        isClassified = true,
+    ),
+    DiscoverItem(
+        id = "4",
+        imageUrl = "https://images.unsplash.com/photo-1523275335684-37898b6baf30",
+        location = "Hamilton",
+        title = "Handmade ceramic dinner set, 12 pieces",
+        priceDisplayCents = 12000,
+        buyNowPriceCents = null,
+        isClassified = true,
+    ),
+    DiscoverItem(
+        id = "5",
+        imageUrl = "https://images.unsplash.com/photo-1542291026-7eec264c27ff",
+        location = "Dunedin",
+        title = "Antique writing desk with brass fittings and original hardware, restored by a local craftsman",
+        priceDisplayCents = 100000,
+        buyNowPriceCents = 150000,
+        isClassified = false,
+    ),
+    DiscoverItem(
+        id = "6",
+        imageUrl = "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f",
+        location = "Tauranga",
+        title = "Kids bicycle, 16 inch wheels",
+        priceDisplayCents = 5999,
+        buyNowPriceCents = null,
+        isClassified = false,
+    ),
+    DiscoverItem(
+        id = "7",
+        imageUrl = "https://images.unsplash.com/photo-1567016432779-094069958ea5",
+        location = "Napier",
+        title = "Electric guitar with amp and gig bag",
+        priceDisplayCents = 1000000,
+        buyNowPriceCents = null,
+        isClassified = true,
+    ),
+    DiscoverItem(
+        id = "8",
+        imageUrl = "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a",
+        location = "Queenstown",
+        title = "Ski jacket, women's medium",
+        priceDisplayCents = 105,
+        buyNowPriceCents = 12345,
+        isClassified = false,
+    ),
+)

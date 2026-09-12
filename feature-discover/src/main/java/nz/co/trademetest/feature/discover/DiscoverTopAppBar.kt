@@ -15,7 +15,6 @@ import androidx.compose.ui.tooling.preview.Preview
 
 /**
  * Stateless Browse top app bar: title on the left, Cart and Search actions on the right.
- * All formatting/business logic lives outside this composable per the MVI rules.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

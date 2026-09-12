@@ -1,16 +1,15 @@
-package nz.co.trademetest.feature.discover
+package nz.co.trademetest.feature.discover.ui.home
 
 import androidx.annotation.StringRes
 
-/**
- * The Discover screen currently renders only static chrome, so it holds no state yet.
- * Real fields (items, loading, error) land with the data layer.
- */
-data object DiscoverUiState
+data class DiscoverUiState(
+    val items: List<DiscoverItemUi> = emptyList(),
+)
 
 sealed interface DiscoverIntent {
     data object CartClicked : DiscoverIntent
     data object SearchClicked : DiscoverIntent
+    data class ItemClicked(val id: String) : DiscoverIntent
 }
 
 sealed interface DiscoverEffect {
