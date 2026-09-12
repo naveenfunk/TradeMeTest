@@ -4,6 +4,8 @@ import androidx.annotation.StringRes
 
 data class DiscoverUiState(
     val items: List<DiscoverItemUi> = emptyList(),
+    val isLoading: Boolean = true,
+    @StringRes val errorMessage: Int? = null,
 )
 
 sealed interface DiscoverIntent {

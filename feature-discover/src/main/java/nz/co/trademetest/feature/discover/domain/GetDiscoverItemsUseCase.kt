@@ -1,7 +1,6 @@
 package nz.co.trademetest.feature.discover.domain
 
 import kotlinx.coroutines.flow.Flow
-import nz.co.trademetest.feature.discover.data.DiscoverRepository
 import javax.inject.Inject
 
 class GetDiscoverItemsUseCase @Inject constructor(

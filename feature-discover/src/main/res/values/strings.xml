@@ -7,4 +7,5 @@
     <string name="discover_search_clicked">Search clicked</string>
     <string name="discover_item_clicked">Item clicked</string>
     <string name="discover_buy_now_label">Buy Now</string>
+    <string name="discover_load_error">Couldn\'t load items. Please try again.</string>
 </resources>

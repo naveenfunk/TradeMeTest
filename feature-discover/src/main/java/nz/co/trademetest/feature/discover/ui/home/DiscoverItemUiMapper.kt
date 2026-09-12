@@ -1,23 +1,25 @@
 package nz.co.trademetest.feature.discover.ui.home
 
-import nz.co.trademetest.feature.discover.DiscoverPriceFormatter
 import nz.co.trademetest.feature.discover.domain.DiscoverItem
+import nz.co.trademetest.feature.discover.domain.PriceFormatter
 import javax.inject.Inject
 
 /**
  * Maps raw [DiscoverItem]s to render-ready [DiscoverItemUi]s.
  */
-internal class DiscoverItemUiMapper @Inject constructor() {
+internal class DiscoverItemUiMapper @Inject constructor(
+    private val priceFormatter: PriceFormatter,
+) {
 
     fun map(item: DiscoverItem): DiscoverItemUi = DiscoverItemUi(
         id = item.id,
         imageUrl = item.imageUrl,
         location = item.location,
         title = item.title,
-        priceDisplay = DiscoverPriceFormatter.format(item.priceDisplayCents),
+        priceDisplay = priceFormatter.format(item.priceDisplayCents),
         buyNowPrice = item.buyNowPriceCents
             ?.takeUnless { item.isClassified }
-            ?.let(DiscoverPriceFormatter::format),
+            ?.let(priceFormatter::format),
         isClassified = item.isClassified,
     )
 

@@ -1,6 +1,7 @@
 package nz.co.trademetest.feature.discover
 
 import nz.co.trademetest.feature.discover.domain.DiscoverItem
+import nz.co.trademetest.feature.discover.domain.PriceFormatter
 import nz.co.trademetest.feature.discover.ui.home.DiscoverItemUiMapper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -8,7 +9,9 @@ import org.junit.Test
 
 class DiscoverItemUiMapperTest {
 
-    private val mapper = DiscoverItemUiMapper()
+    /** Wraps cents in angle brackets so assertions verify *which* value was formatted, not currency spelling. */
+    private val stubFormatter = PriceFormatter { cents -> "<$cents>" }
+    private val mapper = DiscoverItemUiMapper(stubFormatter)
 
     @Test
     fun `classified item never shows Buy Now even when buyNowPriceCents is present`() {
@@ -34,8 +37,8 @@ class DiscoverItemUiMapperTest {
 
         val result = mapper.map(item)
 
-        assertEquals("$450", result.priceDisplay)
-        assertEquals("$899", result.buyNowPrice)
+        assertEquals("<45000>", result.priceDisplay)
+        assertEquals("<89900>", result.buyNowPrice)
     }
 
     @Test
@@ -45,6 +48,15 @@ class DiscoverItemUiMapperTest {
         val result = mapper.map(item)
 
         assertNull(result.buyNowPrice)
+    }
+
+    @Test
+    fun `price display always delegates to the injected formatter`() {
+        val item = baseItem.copy(priceDisplayCents = 15000)
+
+        val result = mapper.map(item)
+
+        assertEquals("<15000>", result.priceDisplay)
     }
 
     @Test

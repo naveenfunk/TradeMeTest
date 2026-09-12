@@ -20,7 +20,7 @@ class DiscoverScreenTest {
     @Test
     fun browseTitleIsDisplayed() {
         composeTestRule.setContent {
-            DiscoverScreen(state = DiscoverUiState(), onIntent = {})
+            DiscoverScreen(state = DiscoverUiState(isLoading = false), onIntent = {})
         }
 
         composeTestRule.onNodeWithText("Browse").assertExists()
@@ -29,7 +29,7 @@ class DiscoverScreenTest {
     @Test
     fun cartAndSearchIconsAreDisplayed() {
         composeTestRule.setContent {
-            DiscoverScreen(state = DiscoverUiState(), onIntent = {})
+            DiscoverScreen(state = DiscoverUiState(isLoading = false), onIntent = {})
         }
 
         composeTestRule.onNodeWithContentDescription("Cart").assertExists()
@@ -40,7 +40,7 @@ class DiscoverScreenTest {
     fun clickingCartDispatchesCartClickedIntent() {
         val dispatchedIntents = mutableListOf<DiscoverIntent>()
         composeTestRule.setContent {
-            DiscoverScreen(state = DiscoverUiState(), onIntent = { dispatchedIntents += it })
+            DiscoverScreen(state = DiscoverUiState(isLoading = false), onIntent = { dispatchedIntents += it })
         }
 
         composeTestRule.onNodeWithContentDescription("Cart").performClick()
@@ -54,7 +54,7 @@ class DiscoverScreenTest {
     fun clickingSearchDispatchesSearchClickedIntent() {
         val dispatchedIntents = mutableListOf<DiscoverIntent>()
         composeTestRule.setContent {
-            DiscoverScreen(state = DiscoverUiState(), onIntent = { dispatchedIntents += it })
+            DiscoverScreen(state = DiscoverUiState(isLoading = false), onIntent = { dispatchedIntents += it })
         }
 
         composeTestRule.onNodeWithContentDescription("Search").performClick()
@@ -62,6 +62,36 @@ class DiscoverScreenTest {
         assert(dispatchedIntents == listOf(DiscoverIntent.SearchClicked)) {
             "Expected [SearchClicked] but got $dispatchedIntents"
         }
+    }
+
+    @Test
+    fun loadingStateShowsProgressIndicatorAndNoItems() {
+        composeTestRule.setContent {
+            DiscoverScreen(
+                state = DiscoverUiState(isLoading = true),
+                onIntent = {},
+            )
+        }
+
+        composeTestRule.onNodeWithContentDescription("Cart").assertExists()
+        composeTestRule.onNodeWithText(ClassifiedItem.title).assertDoesNotExist()
+    }
+
+    @Test
+    fun errorStateShowsErrorMessageAndNoItems() {
+        composeTestRule.setContent {
+            DiscoverScreen(
+                state = DiscoverUiState(
+                    isLoading = false,
+                    errorMessage = R.string.discover_load_error,
+                    items = listOf(ClassifiedItem),
+                ),
+                onIntent = {},
+            )
+        }
+
+        composeTestRule.onNodeWithText("Couldn't load items. Please try again.").assertExists()
+        composeTestRule.onNodeWithText(ClassifiedItem.title).assertDoesNotExist()
     }
 
     @Test

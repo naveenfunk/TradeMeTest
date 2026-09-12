@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -11,8 +12,9 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import nz.co.trademetest.feature.discover.domain.DiscoverItem
-import nz.co.trademetest.feature.discover.data.DiscoverRepository
+import nz.co.trademetest.feature.discover.domain.DiscoverRepository
 import nz.co.trademetest.feature.discover.domain.GetDiscoverItemsUseCase
+import nz.co.trademetest.feature.discover.domain.PriceFormatter
 import nz.co.trademetest.feature.discover.ui.home.DiscoverEffect
 import nz.co.trademetest.feature.discover.ui.home.DiscoverIntent
 import nz.co.trademetest.feature.discover.ui.home.DiscoverItemUiMapper
@@ -20,6 +22,8 @@ import nz.co.trademetest.feature.discover.ui.home.DiscoverUiState
 import nz.co.trademetest.feature.discover.ui.home.DiscoverViewModel
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -27,6 +31,7 @@ import org.junit.Test
 class DiscoverViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
+    private val stubFormatter = PriceFormatter { cents -> "<$cents>" }
 
     @Before
     fun setUp() {
@@ -38,14 +43,17 @@ class DiscoverViewModelTest {
         Dispatchers.resetMain()
     }
 
+    private fun createViewModel(repository: DiscoverRepository): DiscoverViewModel =
+        DiscoverViewModel(
+            getDiscoverItems = GetDiscoverItemsUseCase(repository),
+            mapper = DiscoverItemUiMapper(stubFormatter),
+        )
+
     private fun createViewModel(items: List<DiscoverItem> = emptyList()): DiscoverViewModel {
         val repository = object : DiscoverRepository {
             override fun getDiscoverItems(): Flow<List<DiscoverItem>> = flowOf(items)
         }
-        return DiscoverViewModel(
-            getDiscoverItems = GetDiscoverItemsUseCase(repository),
-            mapper = DiscoverItemUiMapper(),
-        )
+        return createViewModel(repository)
     }
 
     @Test
@@ -85,6 +93,15 @@ class DiscoverViewModelTest {
     }
 
     @Test
+    fun `uiState starts in a loading state`() = runTest {
+        val viewModel = createViewModel()
+
+        viewModel.uiState.test {
+            assertEquals(DiscoverUiState(), awaitItem())
+        }
+    }
+
+    @Test
     fun `uiState maps domain items from the repository`() = runTest {
         val domainItem = DiscoverItem(
             id = "1",
@@ -105,9 +122,34 @@ class DiscoverViewModelTest {
             advanceUntilIdle()
 
             assertEquals(
-                DiscoverUiState(items = DiscoverItemUiMapper().map(listOf(domainItem))),
+                DiscoverUiState(
+                    items = DiscoverItemUiMapper(stubFormatter).map(listOf(domainItem)),
+                    isLoading = false,
+                ),
                 awaitItem(),
             )
+        }
+    }
+
+    @Test
+    fun `uiState surfaces an error message when the repository flow fails`() = runTest {
+        val failingRepository = object : DiscoverRepository {
+            override fun getDiscoverItems(): Flow<List<DiscoverItem>> = flow {
+                throw IllegalStateException("boom")
+            }
+        }
+        val viewModel = createViewModel(failingRepository)
+
+        viewModel.uiState.test {
+            assertEquals(DiscoverUiState(), awaitItem())
+
+            advanceUntilIdle()
+
+            val state = awaitItem()
+            assertTrue(state.items.isEmpty())
+            assertEquals(false, state.isLoading)
+            assertNotNull(state.errorMessage)
+            assertEquals(R.string.discover_load_error, state.errorMessage)
         }
     }
 }

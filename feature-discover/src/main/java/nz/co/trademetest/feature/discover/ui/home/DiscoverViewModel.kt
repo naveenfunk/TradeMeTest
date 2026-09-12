@@ -6,6 +6,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
@@ -21,7 +22,8 @@ class DiscoverViewModel @Inject internal constructor(
 ) : ViewModel() {
 
     val uiState: StateFlow<DiscoverUiState> = getDiscoverItems()
-        .map { items -> DiscoverUiState(items = mapper.map(items)) }
+        .map { items -> DiscoverUiState(items = mapper.map(items), isLoading = false) }
+        .catch { emit(DiscoverUiState(isLoading = false, errorMessage = R.string.discover_load_error)) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DiscoverUiState())
 
     private val _effects = Channel<DiscoverEffect>(Channel.BUFFERED)

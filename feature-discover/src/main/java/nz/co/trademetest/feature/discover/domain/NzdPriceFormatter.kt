@@ -1,16 +1,13 @@
-package nz.co.trademetest.feature.discover
+package nz.co.trademetest.feature.discover.domain
+
+import javax.inject.Inject
 
 /**
- * Hand-rolled NZD price formatter — deliberately locale-*invariant*.
- *
- * `NumberFormat.getCurrencyInstance()` is locale-*variable* and shifts with the
- * JDK's bundled CLDR data (e.g. it emits `₹` on an `en_IN` default locale on this
- * machine). This formatter always renders `$`, comma thousands separators, and
- * suppresses decimals when the amount is a whole dollar figure.
+ * NZD price formatter.
  */
-internal object DiscoverPriceFormatter {
+internal class NzdPriceFormatter @Inject constructor() : PriceFormatter {
 
-    fun format(cents: Long): String {
+    override fun format(cents: Long): String {
         require(cents >= 0) { "cents must be non-negative, was $cents" }
         val grouped = groupThousands(cents / 100)
         val remainder = (cents % 100).toInt()
