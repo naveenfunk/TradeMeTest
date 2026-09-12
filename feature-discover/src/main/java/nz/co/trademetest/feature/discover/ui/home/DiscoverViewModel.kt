@@ -16,7 +16,7 @@ import nz.co.trademetest.feature.discover.domain.GetDiscoverItemsUseCase
 import javax.inject.Inject
 
 @HiltViewModel
-class DiscoverViewModel @Inject internal constructor(
+internal class DiscoverViewModel @Inject internal constructor(
     getDiscoverItems: GetDiscoverItemsUseCase,
     mapper: DiscoverItemUiMapper,
 ) : ViewModel() {
@@ -24,7 +24,15 @@ class DiscoverViewModel @Inject internal constructor(
     val uiState: StateFlow<DiscoverUiState> = getDiscoverItems()
         .map { items -> DiscoverUiState(items = mapper.map(items), isLoading = false) }
         .catch { emit(DiscoverUiState(isLoading = false, errorMessage = R.string.discover_load_error)) }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DiscoverUiState())
+        // Lazily, not WhileSubscribed: this ViewModel is scoped to the DiscoverHome
+        // NavBackStackEntry via hiltViewModel(), and the entry is saved (not
+        // cleared) across tab switches by navigate { saveState = true } +
+        // restoreState = true in TradeMeTestApp. So once loaded it should never
+        // re-run the upstream fetch just because Discover was briefly off-screen
+        // while another tab was shown. It IS re-created (and will re-fetch, correctly)
+        // if the entry is genuinely popped rather than saved -- which today means the
+        // user re-tapped the already-selected Discover tab to return to its root.
+        .stateIn(viewModelScope, SharingStarted.Lazily, DiscoverUiState.Loading)
 
     private val _effects = Channel<DiscoverEffect>(Channel.BUFFERED)
     val effects = _effects.receiveAsFlow()
@@ -33,7 +41,7 @@ class DiscoverViewModel @Inject internal constructor(
         when (intent) {
             DiscoverIntent.CartClicked -> sendEffect(DiscoverEffect.ShowMessage(R.string.discover_cart_clicked))
             DiscoverIntent.SearchClicked -> sendEffect(DiscoverEffect.ShowMessage(R.string.discover_search_clicked))
-            is DiscoverIntent.ItemClicked -> sendEffect(DiscoverEffect.ShowMessage(R.string.discover_item_clicked))
+            is DiscoverIntent.ItemClicked -> sendEffect(DiscoverEffect.NavigateToDetail(intent.id))
         }
     }
 

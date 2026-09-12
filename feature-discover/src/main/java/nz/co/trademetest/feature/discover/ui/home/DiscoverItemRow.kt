@@ -22,15 +22,14 @@ import coil3.compose.AsyncImage
 import nz.co.trademetest.core.theme.TradeMeTestTheme
 import nz.co.trademetest.feature.discover.R
 
-private val RowModifier = Modifier
-    .fillMaxWidth()
-    .padding(16.dp)
+private val RowModifier = Modifier.fillMaxWidth()
+private val RowContentPadding = Modifier.padding(16.dp)
 private val ThumbnailModifier = Modifier
     .size(96.dp)
     .clip(RoundedCornerShape(4.dp))
 
 @Composable
-fun DiscoverItemRow(
+internal fun DiscoverItemRow(
     item: DiscoverItemUi,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -38,7 +37,8 @@ fun DiscoverItemRow(
     Row(
         modifier = modifier
             .then(RowModifier)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .then(RowContentPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(

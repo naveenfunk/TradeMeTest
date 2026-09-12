@@ -1,11 +1,10 @@
 <resources>
-    <string name="discover_title">Discover</string>
     <string name="discover_browse_title">Browse</string>
     <string name="discover_cart_content_description">Cart</string>
     <string name="discover_search_content_description">Search</string>
     <string name="discover_cart_clicked">Cart clicked</string>
     <string name="discover_search_clicked">Search clicked</string>
-    <string name="discover_item_clicked">Item clicked</string>
     <string name="discover_buy_now_label">Buy Now</string>
     <string name="discover_load_error">Couldn\'t load items. Please try again.</string>
+    <string name="discover_detail_placeholder">Item %1$s</string>
 </resources>

@@ -1,19 +1,27 @@
 package nz.co.trademetest.feature.discover.ui.home
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Immutable
 
-data class DiscoverUiState(
+@Immutable
+internal data class DiscoverUiState(
     val items: List<DiscoverItemUi> = emptyList(),
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     @StringRes val errorMessage: Int? = null,
-)
+) {
+    companion object {
+        /** Seed value for [kotlinx.coroutines.flow.stateIn]: nothing fetched yet. */
+        val Loading = DiscoverUiState(isLoading = true)
+    }
+}
 
-sealed interface DiscoverIntent {
+internal sealed interface DiscoverIntent {
     data object CartClicked : DiscoverIntent
     data object SearchClicked : DiscoverIntent
     data class ItemClicked(val id: String) : DiscoverIntent
 }
 
-sealed interface DiscoverEffect {
+internal sealed interface DiscoverEffect {
     data class ShowMessage(@StringRes val message: Int) : DiscoverEffect
+    data class NavigateToDetail(val id: String) : DiscoverEffect
 }

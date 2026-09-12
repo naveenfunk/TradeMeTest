@@ -3,10 +3,12 @@ package nz.co.trademetest.feature.discover
 import app.cash.turbine.test
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
@@ -81,14 +83,14 @@ class DiscoverViewModelTest {
     }
 
     @Test
-    fun `ItemClicked intent emits a ShowMessage effect for the item`() = runTest {
+    fun `ItemClicked intent emits a NavigateToDetail effect for the item's id`() = runTest {
         val viewModel = createViewModel()
 
         viewModel.effects.test {
             viewModel.onIntent(DiscoverIntent.ItemClicked("1"))
 
             val effect = awaitItem()
-            assertEquals(DiscoverEffect.ShowMessage(R.string.discover_item_clicked), effect)
+            assertEquals(DiscoverEffect.NavigateToDetail("1"), effect)
         }
     }
 
@@ -97,7 +99,7 @@ class DiscoverViewModelTest {
         val viewModel = createViewModel()
 
         viewModel.uiState.test {
-            assertEquals(DiscoverUiState(), awaitItem())
+            assertEquals(DiscoverUiState.Loading, awaitItem())
         }
     }
 
@@ -115,9 +117,9 @@ class DiscoverViewModelTest {
         val viewModel = createViewModel(items = listOf(domainItem))
 
         viewModel.uiState.test {
-            // stateIn(WhileSubscribed) emits the initialValue first; the mapped
+            // stateIn(Lazily) emits the seed loading value first; the mapped
             // emission only lands once the upstream flow is drained.
-            assertEquals(DiscoverUiState(), awaitItem())
+            assertEquals(DiscoverUiState.Loading, awaitItem())
 
             advanceUntilIdle()
 
@@ -141,7 +143,7 @@ class DiscoverViewModelTest {
         val viewModel = createViewModel(failingRepository)
 
         viewModel.uiState.test {
-            assertEquals(DiscoverUiState(), awaitItem())
+            assertEquals(DiscoverUiState.Loading, awaitItem())
 
             advanceUntilIdle()
 
@@ -150,6 +152,48 @@ class DiscoverViewModelTest {
             assertEquals(false, state.isLoading)
             assertNotNull(state.errorMessage)
             assertEquals(R.string.discover_load_error, state.errorMessage)
+        }
+    }
+
+    @Test
+    fun `uiState keeps loaded items after all collectors unsubscribe and resubscribe`() = runTest {
+        val domainItem = DiscoverItem(
+            id = "1",
+            imageUrl = "https://example.com/image.jpg",
+            location = "Auckland City",
+            title = "Vintage leather armchair",
+            priceDisplayCents = 15000,
+            buyNowPriceCents = null,
+            isClassified = false,
+        )
+        // An async repository so a restarted upstream would produce a real gap,
+        // unlike a synchronous flowOf which would mask a WhileSubscribed regression.
+        val repository = object : DiscoverRepository {
+            override fun getDiscoverItems(): Flow<List<DiscoverItem>> = flow {
+                delay(1)
+                emit(listOf(domainItem))
+            }
+        }
+        val viewModel = createViewModel(repository)
+
+        // First collection: drain to the loaded state, then unsubscribe.
+        viewModel.uiState.test {
+            assertEquals(DiscoverUiState.Loading, awaitItem())
+            advanceUntilIdle()
+            assertEquals(false, awaitItem().isLoading)
+        }
+
+        // Simulate being on another tab for well beyond the old 5s stopTimeout.
+        advanceTimeBy(10_000)
+        advanceUntilIdle()
+
+        // Re-subscribing must immediately see the cached loaded state, not a
+        // freshly-restarted loading state.
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertEquals(false, state.isLoading)
+            assertEquals(1, state.items.size)
+            expectNoEvents()
         }
     }
 }

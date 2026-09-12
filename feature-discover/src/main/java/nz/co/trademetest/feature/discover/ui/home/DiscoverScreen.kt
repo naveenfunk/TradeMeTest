@@ -2,14 +2,17 @@ package nz.co.trademetest.feature.discover.ui.home
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,8 +33,10 @@ import nz.co.trademetest.core.theme.TradeMeTestTheme
 import nz.co.trademetest.feature.discover.DiscoverTopAppBar
 
 @Composable
-fun DiscoverScreen(
+internal fun DiscoverScreen(
+    onNavigateToDetail: (String) -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
     viewModel: DiscoverViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -44,6 +49,8 @@ fun DiscoverScreen(
                 when (effect) {
                     is DiscoverEffect.ShowMessage ->
                         Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+
+                    is DiscoverEffect.NavigateToDetail -> onNavigateToDetail(effect.id)
                 }
             }
         }
@@ -53,29 +60,34 @@ fun DiscoverScreen(
         state = state,
         onIntent = remember(viewModel) { viewModel::onIntent },
         modifier = modifier,
+        contentPadding = contentPadding,
     )
 }
 
+/**
+ * No Scaffold here: the app-level Scaffold (see MainActivity/TradeMeTestApp) owns
+ * bottom/horizontal insets for all tabs. This screen owns its own top bar and
+ * applies [contentPadding] to its scrollable content only, so the last list item
+ * clears the bottom navigation bar/rail without double-padding the top bar.
+ */
 @Composable
-fun DiscoverScreen(
+internal fun DiscoverScreen(
     state: DiscoverUiState,
     onIntent: (DiscoverIntent) -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
+    listState: LazyListState = rememberLazyListState(),
 ) {
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            DiscoverTopAppBar(
-                onSearchClick = { onIntent(DiscoverIntent.SearchClicked) },
-                onCartClick = { onIntent(DiscoverIntent.CartClicked) },
-            )
-        },
-    ) { innerPadding ->
+    Column(modifier = modifier.fillMaxSize()) {
+        DiscoverTopAppBar(
+            onSearchClick = { onIntent(DiscoverIntent.SearchClicked) },
+            onCartClick = { onIntent(DiscoverIntent.CartClicked) },
+        )
         when {
             state.isLoading -> Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
+                    .padding(contentPadding),
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
@@ -84,7 +96,7 @@ fun DiscoverScreen(
             state.errorMessage != null -> Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
+                    .padding(contentPadding),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -95,10 +107,15 @@ fun DiscoverScreen(
             }
 
             else -> LazyColumn(
+                state = listState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = innerPadding,
+                contentPadding = contentPadding,
             ) {
-                items(items = state.items, key = { it.id }) { item ->
+                items(
+                    items = state.items,
+                    key = { it.id },
+                    contentType = { "discover_item" },
+                ) { item ->
                     DiscoverItemRow(
                         item = item,
                         onClick = {

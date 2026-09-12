@@ -18,7 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiscoverTopAppBar(
+internal fun DiscoverTopAppBar(
     onSearchClick: () -> Unit,
     onCartClick: () -> Unit,
     modifier: Modifier = Modifier,

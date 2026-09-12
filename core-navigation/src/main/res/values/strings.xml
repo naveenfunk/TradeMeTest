@@ -1,0 +1,5 @@
+<resources>
+    <string name="nav_tab_discover">Discover</string>
+    <string name="nav_tab_watchlist">Watchlist</string>
+    <string name="nav_tab_profile">My Trade Me</string>
+</resources>

@@ -7,7 +7,7 @@ import androidx.compose.runtime.Immutable
  * [DiscoverItemUiMapper] so the composable performs no business logic.
  */
 @Immutable
-data class DiscoverItemUi(
+internal data class DiscoverItemUi(
     val id: String,
     val imageUrl: String,
     val location: String,
