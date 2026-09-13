@@ -76,7 +76,7 @@ class NetworkDiscoverRepositoryTest {
         val item = items.first()
         assertEquals("42", item.id)
         assertEquals("Vintage leather armchair", item.title)
-        assertEquals("Ponsonby", item.location)
+        assertEquals("Auckland", item.location)
         assertEquals("$150", item.priceDisplayRaw)
         assertEquals(899.0, item.buyNowPrice)
         assertEquals(true, item.hasBuyNow)

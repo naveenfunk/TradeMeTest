@@ -93,12 +93,12 @@ class ListingMapperTest {
     }
 
     @Test
-    fun `suburb is preferred over region for location when both are present`() {
+    fun `region is used for location when both suburb and region are present`() {
         val dto = baseDto.copy(suburb = "Ponsonby", region = "Auckland")
 
         val result = mapper.map(dto)
 
-        assertEquals("Ponsonby", result.location)
+        assertEquals("Auckland", result.location)
     }
 
     @Test
