@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import nz.co.trademetest.feature.discover.R
 import nz.co.trademetest.feature.discover.domain.DiscoverError
+import nz.co.trademetest.feature.discover.domain.DiscoverItem
 import nz.co.trademetest.feature.discover.domain.GetDiscoverItemsUseCase
 import nz.co.trademetest.feature.discover.domain.toDiscoverError
 import javax.inject.Inject
@@ -34,22 +35,26 @@ internal class DiscoverViewModel @Inject internal constructor(
     val uiState: StateFlow<DiscoverUiState> = refreshTrigger
         .flatMapLatest {
             getDiscoverItems()
-                .map { items ->
-                    DiscoverUiState(
-                        items = mapper.map(items),
-                        isLoading = false,
-                        isEmpty = items.isEmpty(),
+                .map { items -> Result.success(items) }
+                .catch { throwable -> emit(Result.failure(throwable)) }
+                .map { result ->
+                    result.fold(
+                        onSuccess = { items ->
+                            DiscoverUiState(
+                                items = mapper.map(items),
+                                isLoading = false,
+                                isEmpty = items.isEmpty(),
+                            )
+                        },
+                        onFailure = { throwable ->
+                            DiscoverUiState(
+                                isLoading = false,
+                                errorMessage = throwable.toDiscoverError().toMessageRes(),
+                            )
+                        },
                     )
                 }
                 .onStart { emit(DiscoverUiState.Loading) }
-                .catch { throwable ->
-                    emit(
-                        DiscoverUiState(
-                            isLoading = false,
-                            errorMessage = throwable.toDiscoverError().toMessageRes(),
-                        ),
-                    )
-                }
         }
         .stateIn(viewModelScope, SharingStarted.Lazily, DiscoverUiState.Loading)
 

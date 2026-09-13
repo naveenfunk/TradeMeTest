@@ -4,6 +4,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 import nz.co.trademetest.core.network.BuildConfig
 import nz.co.trademetest.core.network.auth.TradeMeAuthInterceptor
@@ -30,6 +32,10 @@ internal object NetworkModule {
     @Provides
     @BaseUrl
     fun provideBaseUrl(): String = BuildConfig.TRADEME_BASE_URL
+
+    @Provides
+    @IoDispatcher
+    fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
 
     @Provides
     @Singleton

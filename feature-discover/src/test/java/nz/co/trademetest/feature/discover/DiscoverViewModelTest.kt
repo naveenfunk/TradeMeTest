@@ -21,9 +21,12 @@ import nz.co.trademetest.feature.discover.ui.home.DiscoverIntent
 import nz.co.trademetest.feature.discover.ui.home.DiscoverItemUiMapper
 import nz.co.trademetest.feature.discover.ui.home.DiscoverUiState
 import nz.co.trademetest.feature.discover.ui.home.DiscoverViewModel
+import nz.co.trademetest.feature.discover.ui.home.NzdPriceFormatter
+import nz.co.trademetest.feature.discover.ui.home.PriceFormatter
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -46,7 +49,7 @@ class DiscoverViewModelTest {
     private fun createViewModel(repository: DiscoverRepository): DiscoverViewModel =
         DiscoverViewModel(
             getDiscoverItems = GetDiscoverItemsUseCase(repository),
-            mapper = DiscoverItemUiMapper(),
+            mapper = DiscoverItemUiMapper(NzdPriceFormatter()),
         )
 
     private fun createViewModel(items: List<DiscoverItem> = emptyList()): DiscoverViewModel {
@@ -111,8 +114,10 @@ class DiscoverViewModelTest {
             imageUrl = "https://example.com/image.jpg",
             location = "Auckland City",
             title = "Vintage leather armchair",
-            priceDisplay = "$150",
+            startPrice = 150.0,
+            priceDisplayRaw = null,
             buyNowPrice = null,
+            hasBuyNow = false,
             isClassified = false,
         )
         val viewModel = createViewModel(items = listOf(domainItem))
@@ -126,12 +131,62 @@ class DiscoverViewModelTest {
 
             assertEquals(
                 DiscoverUiState(
-                    items = DiscoverItemUiMapper().map(listOf(domainItem)),
+                    items = DiscoverItemUiMapper(NzdPriceFormatter()).map(listOf(domainItem)),
                     isLoading = false,
                 ),
                 awaitItem(),
             )
         }
+    }
+
+    @Test
+    fun `a crash in the UI mapper is not misreported as a server error`() {
+        // GetDiscoverItemsUseCase emits successfully here; the failure is injected
+        // into DiscoverItemUiMapper's own formatter. The narrowed .catch upstream of
+        // the ViewModel's mapping step must NOT swallow this -- it should propagate so
+        // a real bug surfaces (e.g. to a crash reporter) instead of showing the user a
+        // misleading "Something went wrong. Please try again." that a retry can't fix.
+        //
+        // The mapper runs inside the sharing coroutine stateIn() launches in
+        // viewModelScope, decoupled from this test's own call stack, so the failure
+        // cannot be caught with a plain try/catch around collection -- it surfaces as
+        // an uncaught exception that fails the enclosing runTest, which is exactly
+        // the "crash loudly" behaviour this test exists to pin.
+        val domainItem = DiscoverItem(
+            id = "1",
+            imageUrl = "https://example.com/image.jpg",
+            location = "Auckland City",
+            title = "Vintage leather armchair",
+            startPrice = 150.0,
+            priceDisplayRaw = null,
+            buyNowPrice = null,
+            hasBuyNow = false,
+            isClassified = false,
+        )
+        val repository = object : DiscoverRepository {
+            override fun getDiscoverItems(): Flow<List<DiscoverItem>> = flowOf(listOf(domainItem))
+        }
+        val throwingFormatter = PriceFormatter { throw IllegalStateException("mapper bug") }
+
+        val failure = assertThrows(Throwable::class.java) {
+            runTest {
+                val viewModel = DiscoverViewModel(
+                    getDiscoverItems = GetDiscoverItemsUseCase(repository),
+                    mapper = DiscoverItemUiMapper(throwingFormatter),
+                )
+                viewModel.uiState.test {
+                    assertEquals(DiscoverUiState.Loading, awaitItem())
+                    awaitItem() // never arrives as a clean value; the mapper throws first
+                }
+            }
+        }
+
+        val rootCause = generateSequence(failure) { it.cause }.lastOrNull { it is IllegalStateException }
+            ?: failure.suppressed.firstOrNull { it is IllegalStateException }
+        assertTrue(
+            "expected the mapper's IllegalStateException to surface somewhere in $failure",
+            rootCause is IllegalStateException || failure.suppressed.any { it is IllegalStateException },
+        )
     }
 
     @Test
@@ -211,8 +266,10 @@ class DiscoverViewModelTest {
             imageUrl = "https://example.com/image.jpg",
             location = "Auckland City",
             title = "Vintage leather armchair",
-            priceDisplay = "$150",
+            startPrice = 150.0,
+            priceDisplayRaw = null,
             buyNowPrice = null,
+            hasBuyNow = false,
             isClassified = false,
         )
         val repository = object : DiscoverRepository {
@@ -250,8 +307,10 @@ class DiscoverViewModelTest {
             imageUrl = "https://example.com/image.jpg",
             location = "Auckland City",
             title = "Vintage leather armchair",
-            priceDisplay = "$150",
+            startPrice = 150.0,
+            priceDisplayRaw = null,
             buyNowPrice = null,
+            hasBuyNow = false,
             isClassified = false,
         )
         // An async repository so a restarted upstream would produce a real gap,

@@ -84,7 +84,6 @@ class DiscoverItemRowTest {
             title = "Espresso machine, barely used",
             priceDisplay = "$250",
             buyNowPrice = null,
-            isClassified = true,
         )
         val AuctionItemWithBuyNow = DiscoverItemUi(
             id = "2",
@@ -93,7 +92,6 @@ class DiscoverItemRowTest {
             title = "Mountain bike, 29er, hydraulic brakes",
             priceDisplay = "$450",
             buyNowPrice = "$899",
-            isClassified = false,
         )
         val AuctionItemWithoutBuyNow = DiscoverItemUi(
             id = "3",
@@ -102,7 +100,6 @@ class DiscoverItemRowTest {
             title = "Vintage leather armchair",
             priceDisplay = "$150",
             buyNowPrice = null,
-            isClassified = false,
         )
     }
 }

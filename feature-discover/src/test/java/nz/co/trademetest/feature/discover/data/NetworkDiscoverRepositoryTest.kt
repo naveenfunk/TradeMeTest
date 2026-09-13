@@ -1,12 +1,13 @@
 package nz.co.trademetest.feature.discover.data
 
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import mockwebserver3.MockResponse
 import mockwebserver3.junit4.MockWebServerRule
 import nz.co.trademetest.feature.discover.data.remote.DiscoverApi
 import nz.co.trademetest.feature.discover.data.remote.ListingMapper
-import nz.co.trademetest.feature.discover.domain.NzdPriceFormatter
 import okhttp3.MediaType.Companion.toMediaType
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -14,6 +15,7 @@ import org.junit.Test
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class NetworkDiscoverRepositoryTest {
 
     @get:Rule
@@ -26,7 +28,11 @@ class NetworkDiscoverRepositoryTest {
             .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
         val api = retrofit.create(DiscoverApi::class.java)
-        return NetworkDiscoverRepository(api = api, mapper = ListingMapper(NzdPriceFormatter()))
+        return NetworkDiscoverRepository(
+            api = api,
+            mapper = ListingMapper(),
+            ioDispatcher = UnconfinedTestDispatcher(),
+        )
     }
 
     @Test
@@ -71,8 +77,9 @@ class NetworkDiscoverRepositoryTest {
         assertEquals("42", item.id)
         assertEquals("Vintage leather armchair", item.title)
         assertEquals("Ponsonby", item.location)
-        assertEquals("$150", item.priceDisplay)
-        assertEquals("$899", item.buyNowPrice)
+        assertEquals("$150", item.priceDisplayRaw)
+        assertEquals(899.0, item.buyNowPrice)
+        assertEquals(true, item.hasBuyNow)
         assertEquals(false, item.isClassified)
     }
 

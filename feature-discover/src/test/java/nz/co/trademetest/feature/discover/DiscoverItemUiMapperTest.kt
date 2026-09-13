@@ -2,58 +2,64 @@ package nz.co.trademetest.feature.discover
 
 import nz.co.trademetest.feature.discover.domain.DiscoverItem
 import nz.co.trademetest.feature.discover.ui.home.DiscoverItemUiMapper
+import nz.co.trademetest.feature.discover.ui.home.NzdPriceFormatter
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
 
+/**
+ * The Auction-vs-Classified suppression rule already lives in
+ * [nz.co.trademetest.feature.discover.domain.GetDiscoverItemsUseCase] by the time an
+ * item reaches this mapper (see GetDiscoverItemsUseCaseTest), so this mapper is
+ * responsible only for turning already-decided numeric prices into display strings.
+ */
 class DiscoverItemUiMapperTest {
 
-    private val mapper = DiscoverItemUiMapper()
+    private val mapper = DiscoverItemUiMapper(priceFormatter = NzdPriceFormatter())
 
     @Test
-    fun `classified item never shows Buy Now even when buyNowPrice is present`() {
-        val item = baseItem.copy(isClassified = true, buyNowPrice = "$250")
+    fun `server priceDisplayRaw is preferred verbatim over a locally formatted price`() {
+        val item = baseItem.copy(priceDisplayRaw = "Asking price", startPrice = 150.0)
 
         val result = mapper.map(item)
 
-        assertNull(result.buyNowPrice)
+        assertEquals("Asking price", result.priceDisplay)
     }
 
     @Test
-    fun `classified item without a buy now price also has no Buy Now`() {
-        val item = baseItem.copy(isClassified = true, buyNowPrice = null)
+    fun `blank priceDisplayRaw falls back to a locally formatted start price`() {
+        val item = baseItem.copy(priceDisplayRaw = "", startPrice = 899.0)
 
         val result = mapper.map(item)
 
-        assertNull(result.buyNowPrice)
+        assertEquals("$899", result.priceDisplay)
     }
 
     @Test
-    fun `auction item with a buy now price shows both prices`() {
-        val item = baseItem.copy(isClassified = false, priceDisplay = "$450", buyNowPrice = "$899")
+    fun `null priceDisplayRaw falls back to a locally formatted start price`() {
+        val item = baseItem.copy(priceDisplayRaw = null, startPrice = 1000.0)
 
         val result = mapper.map(item)
 
-        assertEquals("$450", result.priceDisplay)
+        assertEquals("$1,000", result.priceDisplay)
+    }
+
+    @Test
+    fun `a decided buy now price is formatted`() {
+        val item = baseItem.copy(buyNowPrice = 899.0)
+
+        val result = mapper.map(item)
+
         assertEquals("$899", result.buyNowPrice)
     }
 
     @Test
-    fun `auction item without a buy now price shows null`() {
-        val item = baseItem.copy(isClassified = false, buyNowPrice = null)
+    fun `a null buy now price stays null`() {
+        val item = baseItem.copy(buyNowPrice = null)
 
         val result = mapper.map(item)
 
         assertNull(result.buyNowPrice)
-    }
-
-    @Test
-    fun `price display is copied verbatim`() {
-        val item = baseItem.copy(priceDisplay = "$150")
-
-        val result = mapper.map(item)
-
-        assertEquals("$150", result.priceDisplay)
     }
 
     @Test
@@ -71,7 +77,6 @@ class DiscoverItemUiMapperTest {
         assertEquals("https://example.com/image.jpg", result.imageUrl)
         assertEquals("Auckland City", result.location)
         assertEquals("Vintage leather armchair", result.title)
-        assertEquals(item.isClassified, result.isClassified)
     }
 
     @Test
@@ -91,8 +96,10 @@ class DiscoverItemUiMapperTest {
             imageUrl = "https://example.com/image.jpg",
             location = "Auckland City",
             title = "Vintage leather armchair",
-            priceDisplay = "$150",
+            startPrice = 150.0,
+            priceDisplayRaw = "$150",
             buyNowPrice = null,
+            hasBuyNow = false,
             isClassified = false,
         )
     }

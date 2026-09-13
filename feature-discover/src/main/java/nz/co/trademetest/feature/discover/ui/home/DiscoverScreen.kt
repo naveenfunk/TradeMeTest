@@ -1,5 +1,6 @@
 package nz.co.trademetest.feature.discover.ui.home
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,6 +48,7 @@ internal fun DiscoverScreen(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    @SuppressLint("LocalContextGetResourceValueCall")
     LaunchedEffect(viewModel, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.effects.collect { effect ->
@@ -197,7 +199,6 @@ private val PreviewItems = listOf(
         title = "Vintage leather armchair, great condition",
         priceDisplay = "$150",
         buyNowPrice = "$899",
-        isClassified = false,
     ),
     DiscoverItemUi(
         id = "2",
@@ -206,7 +207,6 @@ private val PreviewItems = listOf(
         title = "Espresso machine, barely used",
         priceDisplay = "$250",
         buyNowPrice = null,
-        isClassified = true,
     ),
 )
 

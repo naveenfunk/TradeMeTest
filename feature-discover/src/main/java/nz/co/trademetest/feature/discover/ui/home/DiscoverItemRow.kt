@@ -108,7 +108,6 @@ private fun DiscoverItemRowPreview() {
                 title = "Vintage leather armchair, great condition",
                 priceDisplay = "$150",
                 buyNowPrice = "$899",
-                isClassified = false,
             ),
             onClick = {},
         )

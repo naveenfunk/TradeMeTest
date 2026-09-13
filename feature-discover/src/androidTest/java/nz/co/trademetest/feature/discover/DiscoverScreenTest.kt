@@ -128,7 +128,7 @@ class DiscoverScreenTest {
         }
 
         composeTestRule.onNodeWithText(ClassifiedItem.priceDisplay).assertExists()
-        composeTestRule.onNodeWithText("Buy Now $899").assertDoesNotExist()
+        composeTestRule.onNodeWithText("Buy Now").assertDoesNotExist()
     }
 
     @Test
@@ -140,7 +140,8 @@ class DiscoverScreenTest {
         }
 
         composeTestRule.onNodeWithText(AuctionItem.priceDisplay).assertExists()
-        composeTestRule.onNodeWithText("Buy Now ${AuctionItem.buyNowPrice}").assertExists()
+        composeTestRule.onNodeWithText(requireNotNull(AuctionItem.buyNowPrice)).assertExists()
+        composeTestRule.onNodeWithText("Buy Now").assertExists()
     }
 
     @Test
@@ -168,12 +169,6 @@ class DiscoverScreenTest {
 
     @Test
     fun scrollPositionIsRetainedWhenWrappedInASaveableStateHolderAcrossLeavingAndReentering() {
-        // This directly exercises the primitive that NavHost's per-destination
-        // SaveableStateProvider relies on (see TradeMeTestApp's NavHost, which no
-        // longer hoists rememberSaveableStateHolder itself now that navigation owns
-        // it, keyed per NavBackStackEntry rather than per tab name). Pins the
-        // contract NavHost depends on to keep Discover's scroll position across a
-        // tab switch.
         var showList by mutableStateOf(true)
         var capturedListState: LazyListState? = null
 
@@ -210,11 +205,6 @@ class DiscoverScreenTest {
 
     @Test
     fun scrollPositionIsLostWithoutASaveableStateHolderAcrossLeavingAndReentering() {
-        // Negative counterpart: documents that hoisting LazyListState alone is not
-        // enough — without a SaveableStateProvider retaining it across disposal
-        // (which is what NavHost provides per back stack entry when saveState /
-        // restoreState are used on tab-switch navigation), the position resets.
-        // Guards against that mechanism being "simplified" away later.
         var showList by mutableStateOf(true)
         var capturedListState: LazyListState? = null
 
@@ -253,7 +243,6 @@ class DiscoverScreenTest {
                 title = "Item $index",
                 priceDisplay = "$$index",
                 buyNowPrice = null,
-                isClassified = false,
             )
         }
         val ClassifiedItem = DiscoverItemUi(
@@ -263,7 +252,6 @@ class DiscoverScreenTest {
             title = "Espresso machine, barely used",
             priceDisplay = "$250",
             buyNowPrice = null,
-            isClassified = true,
         )
         val AuctionItem = DiscoverItemUi(
             id = "auction-1",
@@ -272,7 +260,6 @@ class DiscoverScreenTest {
             title = "Mountain bike, 29er, hydraulic brakes",
             priceDisplay = "$450",
             buyNowPrice = "$899",
-            isClassified = false,
         )
     }
 }

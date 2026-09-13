@@ -5,12 +5,11 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import nz.co.trademetest.feature.discover.data.FakeDiscoverRepository
 import nz.co.trademetest.feature.discover.data.NetworkDiscoverRepository
 import nz.co.trademetest.feature.discover.data.remote.DiscoverApi
 import nz.co.trademetest.feature.discover.domain.DiscoverRepository
-import nz.co.trademetest.feature.discover.domain.NzdPriceFormatter
-import nz.co.trademetest.feature.discover.domain.PriceFormatter
+import nz.co.trademetest.feature.discover.ui.home.NzdPriceFormatter
+import nz.co.trademetest.feature.discover.ui.home.PriceFormatter
 import retrofit2.Retrofit
 import javax.inject.Singleton
 

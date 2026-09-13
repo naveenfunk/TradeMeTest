@@ -1,4 +1,4 @@
-package nz.co.trademetest.feature.discover.domain
+package nz.co.trademetest.feature.discover.ui.home
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows

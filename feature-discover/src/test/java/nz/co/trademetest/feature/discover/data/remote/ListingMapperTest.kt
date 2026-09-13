@@ -1,6 +1,5 @@
 package nz.co.trademetest.feature.discover.data.remote
 
-import nz.co.trademetest.feature.discover.domain.NzdPriceFormatter
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -8,64 +7,68 @@ import org.junit.Test
 
 class ListingMapperTest {
 
-    private val mapper = ListingMapper(priceFormatter = NzdPriceFormatter())
+    private val mapper = ListingMapper()
 
     @Test
-    fun `server PriceDisplay is preferred verbatim over a locally formatted price`() {
+    fun `server PriceDisplay is carried through verbatim`() {
         val dto = baseDto.copy(priceDisplay = "Asking price", startPrice = 150.0)
 
         val result = mapper.map(dto)
 
-        assertEquals("Asking price", result.priceDisplay)
+        assertEquals("Asking price", result.priceDisplayRaw)
     }
 
     @Test
-    fun `blank PriceDisplay falls back to a locally formatted start price`() {
+    fun `blank PriceDisplay is carried through as-is, unformatted`() {
         val dto = baseDto.copy(priceDisplay = "", startPrice = 899.0)
 
         val result = mapper.map(dto)
 
-        assertEquals("$899", result.priceDisplay)
+        assertEquals("", result.priceDisplayRaw)
+        assertEquals(899.0, result.startPrice, 0.0)
     }
 
     @Test
-    fun `null PriceDisplay falls back to a locally formatted start price`() {
+    fun `null PriceDisplay is carried through as null`() {
         val dto = baseDto.copy(priceDisplay = null, startPrice = 1000.0)
 
         val result = mapper.map(dto)
 
-        assertEquals("$1,000", result.priceDisplay)
+        assertNull(result.priceDisplayRaw)
+        assertEquals(1000.0, result.startPrice, 0.0)
     }
 
     @Test
-    fun `buy now price is formatted when HasBuyNow is true and price is positive`() {
+    fun `buy now price and hasBuyNow are carried through raw, unsuppressed`() {
         val dto = baseDto.copy(hasBuyNow = true, buyNowPrice = 899.0)
 
         val result = mapper.map(dto)
 
-        assertEquals("$899", result.buyNowPrice)
+        assertEquals(899.0, result.buyNowPrice)
+        assertTrue(result.hasBuyNow)
     }
 
     @Test
-    fun `buy now price is suppressed when HasBuyNow is false`() {
+    fun `hasBuyNow false is carried through raw, not suppressed here`() {
         val dto = baseDto.copy(hasBuyNow = false, buyNowPrice = 899.0)
 
         val result = mapper.map(dto)
 
-        assertNull(result.buyNowPrice)
+        assertEquals(899.0, result.buyNowPrice)
+        assertEquals(false, result.hasBuyNow)
     }
 
     @Test
-    fun `buy now price is suppressed when zero`() {
+    fun `zero buy now price is carried through raw, not suppressed here`() {
         val dto = baseDto.copy(hasBuyNow = true, buyNowPrice = 0.0)
 
         val result = mapper.map(dto)
 
-        assertNull(result.buyNowPrice)
+        assertEquals(0.0, result.buyNowPrice)
     }
 
     @Test
-    fun `buy now price is suppressed when null`() {
+    fun `null buy now price is carried through as null`() {
         val dto = baseDto.copy(hasBuyNow = true, buyNowPrice = null)
 
         val result = mapper.map(dto)

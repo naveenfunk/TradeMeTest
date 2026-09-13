@@ -10,5 +10,4 @@ internal data class DiscoverItemUi(
     val title: String,
     val priceDisplay: String,
     val buyNowPrice: String?,
-    val isClassified: Boolean,
 )

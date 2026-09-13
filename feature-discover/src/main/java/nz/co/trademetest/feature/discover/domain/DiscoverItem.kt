@@ -5,7 +5,9 @@ data class DiscoverItem(
     val imageUrl: String,
     val location: String,
     val title: String,
-    val priceDisplay: String,
-    val buyNowPrice: String?,
+    val startPrice: Double,
+    val priceDisplayRaw: String?,
+    val buyNowPrice: Double?,
+    val hasBuyNow: Boolean,
     val isClassified: Boolean,
 )
