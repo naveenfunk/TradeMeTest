@@ -157,8 +157,12 @@ class DiscoverScreenTest {
 
         composeTestRule.onNodeWithText(AuctionItem.title).performClick()
 
-        assert(dispatchedIntents == listOf(DiscoverIntent.ItemClicked(AuctionItem.id))) {
-            "Expected [ItemClicked(${AuctionItem.id})] but got $dispatchedIntents"
+        assert(
+            dispatchedIntents == listOf(
+                DiscoverIntent.ItemClicked(id = AuctionItem.id, title = AuctionItem.title)
+            )
+        ) {
+            "Expected [ItemClicked(${AuctionItem.id}, ${AuctionItem.title})] but got $dispatchedIntents"
         }
     }
 

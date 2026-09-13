@@ -54,9 +54,3 @@ val TopLevelRoute.graphRoute: TradeMeRoute
     }
 
 val TOP_LEVEL_ROUTES: List<TopLevelRoute> = listOf(DiscoverHome, WatchlistHome, ProfileHome)
-
-/**
- * A Discover item's detail screen.
- */
-@Serializable
-data class DiscoverDetail(val id: String) : TradeMeRoute

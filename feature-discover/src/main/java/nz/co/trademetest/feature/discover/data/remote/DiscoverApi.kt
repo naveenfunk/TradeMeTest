@@ -7,7 +7,7 @@ internal interface DiscoverApi {
 
     @GET("listings/latest.json")
     suspend fun getLatestListings(
-        @Query("rows") rows: Int = 50,
+        @Query("rows") rows: Int = 20,
         @Query("photo_size") photoSize: String = "Medium",
     ): LatestListingsResponse
 }

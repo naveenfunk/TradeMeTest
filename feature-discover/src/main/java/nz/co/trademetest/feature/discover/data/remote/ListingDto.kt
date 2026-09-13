@@ -23,4 +23,5 @@ internal data class ListingDto(
     @SerialName("BuyNowPrice") val buyNowPrice: Double? = null,
     @SerialName("IsClassified") val isClassified: Boolean = false,
     @SerialName("HasBuyNow") val hasBuyNow: Boolean = false,
+    @SerialName("PhotoUrls") val photoUrls: List<String> = emptyList(),
 )

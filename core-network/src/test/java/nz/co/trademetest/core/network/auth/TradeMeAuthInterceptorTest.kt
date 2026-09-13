@@ -27,7 +27,7 @@ class TradeMeAuthInterceptorTest {
             assertEquals(
                 "OAuth oauth_consumer_key=\"my-key\", " +
                     "oauth_signature_method=\"PLAINTEXT\", " +
-                    "oauth_signature=\"my-secret\"",
+                    "oauth_signature=\"my-secret&\"",
                 recorded.headers["Authorization"],
             )
         }

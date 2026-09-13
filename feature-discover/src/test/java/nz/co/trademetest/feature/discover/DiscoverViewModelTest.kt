@@ -81,14 +81,17 @@ class DiscoverViewModelTest {
     }
 
     @Test
-    fun `ItemClicked intent emits a NavigateToDetail effect for the item's id`() = runTest {
+    fun `ItemClicked intent emits a ShowMessage effect for the item's title`() = runTest {
         val viewModel = createViewModel()
 
         viewModel.effects.test {
-            viewModel.onIntent(DiscoverIntent.ItemClicked("1"))
+            viewModel.onIntent(DiscoverIntent.ItemClicked(id = "1", title = "Vintage leather armchair"))
 
             val effect = awaitItem()
-            assertEquals(DiscoverEffect.NavigateToDetail("1"), effect)
+            assertEquals(
+                DiscoverEffect.ShowMessage(R.string.discover_item_clicked, "Vintage leather armchair"),
+                effect,
+            )
         }
     }
 

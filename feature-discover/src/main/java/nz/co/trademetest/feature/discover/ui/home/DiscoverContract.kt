@@ -20,10 +20,9 @@ internal sealed interface DiscoverIntent {
     data object CartClicked : DiscoverIntent
     data object SearchClicked : DiscoverIntent
     data object RetryClicked : DiscoverIntent
-    data class ItemClicked(val id: String) : DiscoverIntent
+    data class ItemClicked(val id: String, val title: String) : DiscoverIntent
 }
 
 internal sealed interface DiscoverEffect {
-    data class ShowMessage(@StringRes val message: Int) : DiscoverEffect
-    data class NavigateToDetail(val id: String) : DiscoverEffect
+    data class ShowMessage(@StringRes val message: Int, val arg: String? = null) : DiscoverEffect
 }

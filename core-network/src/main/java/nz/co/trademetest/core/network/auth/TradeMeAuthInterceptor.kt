@@ -21,7 +21,7 @@ internal class TradeMeAuthInterceptor @Inject constructor(
                 "Authorization",
                 "OAuth oauth_consumer_key=\"$consumerKey\", " +
                     "oauth_signature_method=\"PLAINTEXT\", " +
-                    "oauth_signature=\"$consumerSecret\"",
+                    "oauth_signature=\"$consumerSecret&\"",
             )
             .build()
 

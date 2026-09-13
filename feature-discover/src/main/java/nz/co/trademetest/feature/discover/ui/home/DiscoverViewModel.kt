@@ -61,7 +61,8 @@ internal class DiscoverViewModel @Inject internal constructor(
             DiscoverIntent.CartClicked -> sendEffect(DiscoverEffect.ShowMessage(R.string.discover_cart_clicked))
             DiscoverIntent.SearchClicked -> sendEffect(DiscoverEffect.ShowMessage(R.string.discover_search_clicked))
             DiscoverIntent.RetryClicked -> refreshTrigger.update { it + 1 }
-            is DiscoverIntent.ItemClicked -> sendEffect(DiscoverEffect.NavigateToDetail(intent.id))
+            is DiscoverIntent.ItemClicked ->
+                sendEffect(DiscoverEffect.ShowMessage(R.string.discover_item_clicked, intent.title))
         }
     }
 

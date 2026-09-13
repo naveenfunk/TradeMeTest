@@ -28,6 +28,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     api(project(":core-theme"))
     api(project(":core-navigation"))
+    implementation(project(":core-ui"))
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.ui.tooling.preview)

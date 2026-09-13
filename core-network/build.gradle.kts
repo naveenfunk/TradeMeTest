@@ -29,7 +29,7 @@ android {
     defaultConfig {
         minSdk = 28
 
-        buildConfigField("String", "TRADEME_BASE_URL", "\"https://api.trademe.co.nz/v1/\"")
+        buildConfigField("String", "TRADEME_BASE_URL", "\"https://api.tmsandbox.co.nz/v1/\"")
         buildConfigField("String", "TRADEME_CONSUMER_KEY", "\"${secret("TRADEME_CONSUMER_KEY")}\"")
         buildConfigField("String", "TRADEME_CONSUMER_SECRET", "\"${secret("TRADEME_CONSUMER_SECRET")}\"")
     }

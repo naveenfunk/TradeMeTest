@@ -21,16 +21,6 @@ class RouteSerializationTest {
     }
 
     @Test
-    fun discoverDetailRoundTripsWithItsIdArgument() {
-        val route: TradeMeRoute = DiscoverDetail(id = "auction-42")
-        val encoded = json.encodeToString(route)
-        val decoded = json.decodeFromString<TradeMeRoute>(encoded)
-
-        assertEquals(route, decoded)
-        assertEquals("auction-42", (decoded as DiscoverDetail).id)
-    }
-
-    @Test
     fun tabGraphRoutesRoundTripThroughJson() {
         val routes: List<TradeMeRoute> =
             listOf(DiscoverGraphRoute, WatchlistGraphRoute, ProfileGraphRoute)

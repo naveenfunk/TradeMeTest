@@ -10,11 +10,9 @@ internal class ListingMapper @Inject constructor(
 
     fun map(dto: ListingDto): DiscoverItem = DiscoverItem(
         id = dto.listingId.toString(),
-        imageUrl = dto.pictureHref.orEmpty(),
+        imageUrl = dto.photoUrls.firstOrNull() ?: dto.pictureHref.orEmpty(),
         location = listOfNotNull(
-            dto.suburb?.takeIf(String::isNotBlank),
-            dto.region?.takeIf(String::isNotBlank),
-        ).firstOrNull().orEmpty(),
+            dto.region?.takeIf(String::isNotBlank)).firstOrNull().orEmpty(),
         title = dto.title.orEmpty(),
         priceDisplay = dto.priceDisplay?.takeIf(String::isNotBlank)
             ?: priceFormatter.format(dto.startPrice),

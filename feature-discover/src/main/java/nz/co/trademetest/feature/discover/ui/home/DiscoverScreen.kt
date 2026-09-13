@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,12 +34,11 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import nz.co.trademetest.core.theme.TradeMeTestTheme
-import nz.co.trademetest.feature.discover.DiscoverTopAppBar
+import nz.co.trademetest.core.ui.TradeMeTopAppBar
 import nz.co.trademetest.feature.discover.R
 
 @Composable
 internal fun DiscoverScreen(
-    onNavigateToDetail: (String) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     viewModel: DiscoverViewModel = hiltViewModel(),
@@ -49,10 +51,14 @@ internal fun DiscoverScreen(
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
             viewModel.effects.collect { effect ->
                 when (effect) {
-                    is DiscoverEffect.ShowMessage ->
-                        Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-
-                    is DiscoverEffect.NavigateToDetail -> onNavigateToDetail(effect.id)
+                    is DiscoverEffect.ShowMessage -> {
+                        val text = if (effect.arg != null) {
+                            context.getString(effect.message, effect.arg)
+                        } else {
+                            context.getString(effect.message)
+                        }
+                        Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
@@ -81,9 +87,24 @@ internal fun DiscoverScreen(
     listState: LazyListState = rememberLazyListState(),
 ) {
     Column(modifier = modifier.fillMaxSize()) {
-        DiscoverTopAppBar(
-            onSearchClick = { onIntent(DiscoverIntent.SearchClicked) },
-            onCartClick = { onIntent(DiscoverIntent.CartClicked) },
+        TradeMeTopAppBar(
+            title = stringResource(R.string.discover_browse_title),
+            actions = {
+                IconButton(onClick = { onIntent(DiscoverIntent.SearchClicked) }) {
+                    Icon(
+                        painter = painterResource(R.drawable.discover_ic_search),
+                        contentDescription = stringResource(R.string.discover_search_content_description),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+                IconButton(onClick = { onIntent(DiscoverIntent.CartClicked) }) {
+                    Icon(
+                        painter = painterResource(R.drawable.discover_ic_cart),
+                        contentDescription = stringResource(R.string.discover_cart_content_description),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            },
         )
         when {
             state.isLoading -> Box(
@@ -122,7 +143,8 @@ internal fun DiscoverScreen(
                         onClick = {
                             onIntent(
                                 DiscoverIntent.ItemClicked(
-                                    item.id
+                                    id = item.id,
+                                    title = item.title,
                                 )
                             )
                         },

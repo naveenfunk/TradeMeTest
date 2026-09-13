@@ -100,7 +100,7 @@ fun TradeMeTestApp(
             navController = navController,
             startDestination = DiscoverGraphRoute,
         ) {
-            discoverGraph(navController = navController, contentPadding = PaddingValues())
+            discoverGraph(contentPadding = PaddingValues())
             watchlistGraph(contentPadding = PaddingValues())
             profileGraph(contentPadding = PaddingValues())
         }

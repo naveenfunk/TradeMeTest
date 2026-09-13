@@ -32,6 +32,7 @@ dependencies {
     api(project(":core-theme"))
     api(project(":core-navigation"))
     implementation(project(":core-network"))
+    implementation(project(":core-ui"))
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.compose.material3)

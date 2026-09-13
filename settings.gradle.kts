@@ -25,6 +25,7 @@ dependencyResolutionManagement {
 rootProject.name = "Trade Me Test"
 include(":app")
 include(":core-theme")
+include(":core-ui")
 include(":core-navigation")
 include(":core-network")
 include(":feature-discover")

@@ -11,5 +11,5 @@
     <string name="discover_error_credentials">Missing Trade Me API credentials. Add them to secrets.properties.</string>
     <string name="discover_empty">No listings found.</string>
     <string name="discover_retry">Retry</string>
-    <string name="discover_detail_placeholder">Item %1$s</string>
+    <string name="discover_item_clicked">Clicked: %1$s</string>
 </resources>
