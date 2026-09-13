@@ -8,8 +8,7 @@ internal class ListingMapper @Inject constructor() {
     fun map(dto: ListingDto): DiscoverItem = DiscoverItem(
         id = dto.listingId.toString(),
         imageUrl = dto.photoUrls.firstOrNull() ?: dto.pictureHref.orEmpty(),
-        location = dto.suburb?.takeIf(String::isNotBlank)
-            ?: dto.region?.takeIf(String::isNotBlank).orEmpty(),
+        location = dto.region.orEmpty(),
         title = dto.title.orEmpty(),
         startPrice = dto.startPrice,
         priceDisplayRaw = dto.priceDisplay,

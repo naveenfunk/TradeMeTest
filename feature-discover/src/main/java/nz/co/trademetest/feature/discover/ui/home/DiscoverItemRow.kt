@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,8 +27,9 @@ import nz.co.trademetest.feature.discover.R
 
 private val RowModifier = Modifier.fillMaxWidth()
 private val RowContentPadding = Modifier.padding(16.dp)
+private val ThumbnailSize = 96.dp
 private val ThumbnailModifier = Modifier
-    .size(96.dp)
+    .size(ThumbnailSize)
     .clip(RoundedCornerShape(4.dp))
 
 @Composable
@@ -41,7 +43,6 @@ internal fun DiscoverItemRow(
             .then(RowModifier)
             .clickable(onClick = onClick)
             .then(RowContentPadding),
-        verticalAlignment = Alignment.CenterVertically,
     ) {
         AsyncImage(
             model = item.imageUrl,
@@ -50,7 +51,10 @@ internal fun DiscoverItemRow(
             modifier = ThumbnailModifier,
         )
         Column(
-            modifier = Modifier.padding(start = 12.dp),
+            modifier = Modifier
+                .padding(start = 12.dp)
+                .height(ThumbnailSize)
+                .weight(1f),
         ) {
             Text(
                 text = item.location,
@@ -64,12 +68,13 @@ internal fun DiscoverItemRow(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
+            Spacer(modifier = Modifier.weight(1f))
             Row(
-                modifier = Modifier.padding(top = 12.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
                 Text(
                     text = item.priceDisplay,
+                    fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                     style = MaterialTheme.typography.bodyLarge,
                 )

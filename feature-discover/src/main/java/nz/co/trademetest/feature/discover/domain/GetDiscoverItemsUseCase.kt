@@ -12,6 +12,6 @@ class GetDiscoverItemsUseCase @Inject constructor(
 
     private fun applyPricingRules(item: DiscoverItem): DiscoverItem = item.copy(
         buyNowPrice = item.buyNowPrice
-            ?.takeIf { item.hasBuyNow && it > 0.0 && !item.isClassified },
+            ?.takeIf { item.hasBuyNow },
     )
 }
